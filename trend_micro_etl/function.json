@@ -1,0 +1,14 @@
+{
+  "scriptFile": "../shared_code/trend_micro_etl.py",
+  "entryPoint": "main",
+  "bindings": [
+    {
+      "name": "mytimer",
+      "type": "timerTrigger",
+      "direction": "in",
+      "schedule": "0 */5 * * * *",
+      "runOnStartup": true,
+      "useMonitor": true
+    }
+  ]
+}
