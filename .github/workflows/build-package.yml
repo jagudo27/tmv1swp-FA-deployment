@@ -1,0 +1,48 @@
+# Simple workflow to create deployment package
+name: Build Deployment Package
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.12'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python version
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          mkdir -p .python_packages/lib/site-packages
+          pip install -r requirements.txt --target=".python_packages/lib/site-packages"
+          echo "Dependencies installed:"
+          ls -la .python_packages/lib/site-packages
+
+      - name: Create deployment package
+        run: |
+          echo "Creating deployment ZIP..."
+          zip -r deployment-package.zip . -x ".git/*" ".github/*" "venv/*" "*.pyc" "__pycache__/*"
+          echo "Package created:"
+          ls -la deployment-package.zip
+
+      - name: Upload deployment package
+        uses: actions/upload-artifact@v4
+        with:
+          name: azure-functions-deployment
+          path: deployment-package.zip
+          retention-days: 30

@@ -1,2 +1,9 @@
-# Azure Functions v1 entry point for trend_micro_etl function
-# This file is required for v1 model but can be empty since we use shared_code
+"""
+Azure Functions entry point for Trend Micro ETL function.
+This module imports and exposes the main ETL function from shared_code.
+"""
+
+from shared_code.trend_micro_etl import main
+
+# Export the main function for Azure Functions runtime
+__all__ = ['main']
