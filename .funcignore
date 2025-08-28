@@ -7,3 +7,11 @@ __pycache__
 *.egg-info
 .env
 local.settings.json
+venv/
+.venv/
+node_modules/
+.github/
+*.md
+README.md
+deployment/
+Email_Resumen_Proyecto.md
