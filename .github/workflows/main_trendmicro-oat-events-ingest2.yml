@@ -34,11 +34,10 @@ jobs:
       # Zip everything (code + .python_packages + manifest files)
       - name: Create deployment package
         run: |
-          zip -r release.zip . \
-            -x ".*" \
+          zip -r release.zip * .python_packages \
             -x "*/.git/*" \
             -x "*/__pycache__/*" \
-            -x "venv/*"
+            -x "*/venv/*"
 
       # Upload the zip to Azure using publish profile
       - name: Deploy to Azure Function App
