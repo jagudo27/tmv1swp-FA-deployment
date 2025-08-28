@@ -23,10 +23,10 @@ class LogAnalyticsIngestionClient:
             data_collection_rule_id: Data Collection Rule ID for the target table
             stream_name: Name of the custom stream/table
         """
+        self.logger = logging.getLogger(__name__)
         self.endpoint_url = self._validate_and_clean_endpoint(endpoint_url)
         self.data_collection_rule_id = data_collection_rule_id
         self.stream_name = stream_name
-        self.logger = logging.getLogger(__name__)
         
         self._validate_configuration()
     
