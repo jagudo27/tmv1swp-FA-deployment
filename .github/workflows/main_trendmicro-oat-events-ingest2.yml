@@ -1,4 +1,4 @@
-name: Deploy Python Azure Function (remote build with Core Tools)
+name: Deploy Python Azure Function (Publish Profile + Remote Build)
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_FUNCTIONAPP_NAME: 'trendmicro-oat-events-ingest2' # Azure Function App name
+  AZURE_FUNCTIONAPP_NAME: 'trendmicro-oat-events-ingest2' # Your Function App name
   PYTHON_VERSION: '3.12'
 
 jobs:
@@ -14,31 +14,39 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout repo content
+      # Checkout repo
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Setup Python (mainly if I want to run tests before publishing)
+      # Setup Python (useful if I want to run tests before deploy)
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      # (Optional) run tests locally on CI before deploying
+      # (Optional) run tests locally in CI
       # - name: Run tests
       #   run: |
       #     python -m pip install --upgrade pip
       #     pip install -r requirements.txt
       #     pytest
 
-      # Install Azure Functions Core Tools (needed to use `func azure functionapp publish`)
+      # Install Azure Functions Core Tools (needed for func publish)
       - name: Install Azure Functions Core Tools
         run: npm install -g azure-functions-core-tools@4 --unsafe-perm true
 
-      # Deploy to Azure Function App using remote build (Oryx will install my dependencies from requirements.txt on Azure)
+      # Save publish profile from GitHub secret into a file
+      - name: Write publish profile to file
+        run: echo "${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_D5E946ECB1B9405B8169FC389BC25C70 }}" > publishProfile.publishsettings
+
+      # Deploy with remote build (Oryx installs requirements.txt on Azure)
       - name: Publish to Azure Function App
         run: |
           func azure functionapp publish ${{ env.AZURE_FUNCTIONAPP_NAME }} \
             --python \
             --build remote \
-            --publish-profile "${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}"
+            --publish-profile publishProfile.publishsettings
+
+      # Cleanup for security
+      - name: Cleanup
+        run: rm publishProfile.publishsettings
