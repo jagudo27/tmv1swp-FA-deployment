@@ -56,6 +56,15 @@ def main(mytimer: func.TimerRequest) -> None:
         
         logger.info(f"Events transformed: {len(transformed_events)}")
         
+        # Log field coverage statistics for debugging
+        if len(events) > 0:
+            coverage_stats = transformer.validate_raw_event_coverage(events[:min(10, len(events))])  # Sample first 10 events
+            populated_fields = [(field, count) for field, count in coverage_stats.items() if count > 0]
+            logger.info(f"Field coverage analysis (first {min(10, len(events))} events):")
+            logger.info(f"Populated fields: {len(populated_fields)}/{len(coverage_stats)}")
+            if populated_fields:
+                logger.debug(f"Most common fields: {sorted(populated_fields, key=lambda x: x[1], reverse=True)[:10]}")
+        
         # Step 4: Send to Log Analytics
         log_analytics_client = LogAnalyticsIngestionClient(
             config.data_collection_endpoint,
