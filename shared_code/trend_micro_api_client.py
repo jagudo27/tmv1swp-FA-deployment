@@ -16,7 +16,7 @@ class TrendMicroApiClient:
     OAT_ENDPOINT = '/v3.0/oat/detections'
     MAX_EVENTS_PER_REQUEST = 6000
     REQUEST_TIMEOUT_SECONDS = 30
-    LOOKBACK_HOURS = 1
+    LOOKBACK_HOURS = 4
     
     def __init__(self, api_token: str):
         """
