@@ -45,4 +45,4 @@ jobs:
         with:
           app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
           package: release.zip
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_D5E946ECB1B9405B8169FC389BC25C70 }}
+          publish-profile: ${{ secrets.TMV1SWP }}
