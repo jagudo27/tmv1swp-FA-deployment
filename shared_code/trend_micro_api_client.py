@@ -16,7 +16,7 @@ class TrendMicroApiClient:
     OAT_ENDPOINT = '/v3.0/oat/detections'
     MAX_EVENTS_PER_REQUEST = 6000
     REQUEST_TIMEOUT_SECONDS = 30
-    LOOKBACK_HOURS = 4
+    LOOKBACK_HOURS = 5 / 60
     
     def __init__(self, api_token: str):
         """
@@ -49,7 +49,7 @@ class TrendMicroApiClient:
         self.logger.info(f"Fetching SDS OAT events from {time_range['start']} to {time_range['end']}")
         self.logger.info("Filter: SDS events with medium/high/critical risk only")
         
-        return self._fetch_all_pages(headers, query_params)
+        return self._fetch_all_pages(headers, query_params, time_range, hours)
     
     def _calculate_time_range(self, hours: int) -> Dict[str, str]:
         """Calculates the time range for the API query."""
@@ -76,7 +76,7 @@ class TrendMicroApiClient:
             'top': self.MAX_EVENTS_PER_REQUEST
         }
     
-    def _fetch_all_pages(self, headers: Dict[str, str], initial_params: Dict[str, str]) -> Dict:
+    def _fetch_all_pages(self, headers: Dict[str, str], initial_params: Dict[str, str], time_range: Dict[str, str] = None, hours: int = None) -> Dict:
         """
         Fetches all pages of events using pagination.
         
@@ -103,14 +103,23 @@ class TrendMicroApiClient:
                 
                 events, total_count, next_url = page_result
                 all_events.extend(events)
-                
+
+                # Registrar evento personalizado si no hay eventos en la respuesta
+                if page_count == 1 and len(events) == 0:
+                    custom_dimensions = {
+                        "eventType": "NoTrendMicroEvents",
+                        "start": time_range["start"] if time_range else None,
+                        "end": time_range["end"] if time_range else None,
+                        "hours": hours
+                    }
+                    self.logger.info("No trend_micro events recieved", extra={"custom_dimensions": custom_dimensions})
                 if next_url:
                     url = next_url
                     query_params = {}  # Clear params for next link
                 else:
                     self.logger.info(f"Pagination completed. Total pages: {page_count}")
                     break
-                    
+            
             except Exception as e:
                 self.logger.error(f"Error fetching page {page_count}: {str(e)}")
                 break

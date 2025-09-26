@@ -450,10 +450,6 @@ class TrendMicroEventTransformer:
             self.logger.warning(f"Event validation failed - missing required fields: {missing_fields}")
             return False
         
-        # Log warning if name is missing (not blocking but important for identification)
-        if not transformed_event.get('name'):
-            self.logger.warning(f"Event {transformed_event.get('uuid', 'unknown')} missing 'name' field for identification")
-        
         return True
     
     def get_dcr_schema_fields(self) -> Set[str]:
